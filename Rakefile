@@ -7,7 +7,13 @@ Rails.application.load_tasks
 
 desc "Gets the current week's new highlights"
 task :get_highlights => :environment do
-	response = HTTParty.get("http://www.reddit.com/r/nfl/comments/#{Week.last.urls.last}/.json?limit=10000&depth=1&sort=new")
+	response = {}
+
+	loop do
+		response = HTTParty.get("http://www.reddit.com/r/nfl/comments/#{Week.last.urls.last}/.json?limit=10000&depth=1&sort=new")
+		break if response.code === 200
+	end
+
 	week_id = Week.all.last.id
 	latest = Highlight.maximum(:posted_on)
 
@@ -24,7 +30,13 @@ end
 
 desc "Gets the latest highlight thread"
 task :get_thread => :environment do
-	response = HTTParty.get("http://www.reddit.com/r/nfl/.json")
+	response = {}
+
+	loop do
+		response = HTTParty.get("http://www.reddit.com/r/nfl/.json")
+		break if response.code === 200
+	end
+	
 	date = Time.now
 	latest_week = Week.maximum(:week_number)
 
