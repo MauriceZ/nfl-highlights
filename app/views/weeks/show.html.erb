@@ -1,0 +1,25 @@
+<%= javascript_include_tag "application" %>
+
+<h1>Week <%= @week.week_number %> Highlights</h1>
+
+<section>
+	<ul>
+	<% @highlights.sort_by { |arr| arr[:posted_on] }.reverse.each do |highlight| %>
+		<%= content_tag(:li, CGI.unescapeHTML(highlight.body).html_safe) %>
+	<% end %>
+	</ul>
+</section>
+
+<div id="vidDiv"></div>
+
+<aside>
+	<ul>
+	<% @weeks.reverse.each do |week| %>
+		<% if week.week_number == @week.week_number %>
+			<%= content_tag(:li, "Week #{week.week_number}", id: "currentWeek") %>
+		<% else %>
+			<%= content_tag(:li, link_to("Week #{week.week_number.to_s}", week_path(week))) %>
+		<% end %>
+	<% end %>
+	</ul>
+</aside>
