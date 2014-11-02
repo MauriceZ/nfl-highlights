@@ -36,11 +36,10 @@ task :get_thread => :environment do
 		response = HTTParty.get("http://www.reddit.com/r/nfl/.json")
 		break if response.code === 200
 	end
-	
-	date = Time.now
+
 	latest_week = Week.maximum(:week_number)
 
-	if date.thursday?
+	if Time.now.thursday?
 		w = Week.new(:week_number => latest_week+1)
 		w.save
 	end

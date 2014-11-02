@@ -41,3 +41,4 @@ gem 'spring',        group: :development
 gem 'rails_12factor', group: :production
 gem 'httparty'
 gem 'awesome_print'
+gem 'clockwork'
