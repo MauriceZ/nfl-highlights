@@ -12,7 +12,7 @@ module Clockwork
 	#   puts "Running #{job}, at #{time}"
 	# end
 
-	every(10.seconds, 'Get Highlights') {
-		Heroku::API.new.post_ps('nfl-highlights', 'rake get_highlights')
+	every(10.minutes, 'Get Highlights') {
+		%x[rake get_highlights]
 	}
 end
