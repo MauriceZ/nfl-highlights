@@ -3,11 +3,15 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'HTTParty'
 require 'clockwork'
 
-module Clockwork
+include Clockwork
 
-	every(2.minutes, 'Get Highlights') {
-		get_highlights
-	}
+every(2.minutes, 'Get Highlights') {
+	get_highlights
+}
+
+# module Clockwork
+
+	
 
 	# min = 9
 	# hour = 13
@@ -46,7 +50,7 @@ module Clockwork
 	# every(1.week, 'Get Thread', :at => "Thursday 20:30", :tz => 'EST') {
 	# 	get_thread
 	# }
-end
+# end
 
 def get_highlights
 	response = {}
