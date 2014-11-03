@@ -4,43 +4,48 @@ require 'HTTParty'
 require 'clockwork'
 
 module Clockwork
-	min = 9
-	hour = 13
 
-	until hour == 23 && min == 59
-		every(1.week, 'Get Highlights', :at => "Sunday #{hour.to_s}:#{min.to_s.rjust(2, '0')}", :tz => 'EST') {
-			get_highlights
-		}
-
-		min = (min+10) % 60
-		hour += 1 if min == 9
-	end
-
-	min = 9
-	hour = 20
-
-	until hour == 23 && min == 59
-		every(1.week, 'Get Highlights', :at => "Monday #{hour.to_s}:#{min.to_s.rjust(2, '0')}", :tz => 'EST') {
-			get_highlights
-		}
-
-		every(1.week, 'Get Highlights', :at => "Thursday #{hour.to_s}:#{min.to_s.rjust(2, '0')}", :tz => 'EST') {
-			get_highlights
-		}
-
-		min = (min+10) % 60
-		hour += 1 if min == 9
-	end
-
-	every(1.week, 'Get Thread', :at => "Sunday 13:00", :tz => 'EST') {
-		get_thread
+	every(2.minutes, 'Get Highlights') {
+		get_highlights
 	}
-	every(1.week, 'Get Thread', :at => "Monday 20:30", :tz => 'EST') {
-		get_thread
-	}
-	every(1.week, 'Get Thread', :at => "Thursday 20:30", :tz => 'EST') {
-		get_thread
-	}
+
+	# min = 9
+	# hour = 13
+
+	# until hour == 23 && min == 59
+	# 	every(1.week, 'Get Highlights', :at => "Sunday #{hour.to_s}:#{min.to_s.rjust(2, '0')}", :tz => 'EST') {
+	# 		get_highlights
+	# 	}
+
+	# 	min = (min+10) % 60
+	# 	hour += 1 if min == 9
+	# end
+
+	# min = 9
+	# hour = 20
+
+	# until hour == 23 && min == 59
+	# 	every(1.week, 'Get Highlights', :at => "Monday #{hour.to_s}:#{min.to_s.rjust(2, '0')}", :tz => 'EST') {
+	# 		get_highlights
+	# 	}
+
+	# 	every(1.week, 'Get Highlights', :at => "Thursday #{hour.to_s}:#{min.to_s.rjust(2, '0')}", :tz => 'EST') {
+	# 		get_highlights
+	# 	}
+
+	# 	min = (min+10) % 60
+	# 	hour += 1 if min == 9
+	# end
+
+	# every(1.week, 'Get Thread', :at => "Sunday 13:00", :tz => 'EST') {
+	# 	get_thread
+	# }
+	# every(1.week, 'Get Thread', :at => "Monday 20:30", :tz => 'EST') {
+	# 	get_thread
+	# }
+	# every(1.week, 'Get Thread', :at => "Thursday 20:30", :tz => 'EST') {
+	# 	get_thread
+	# }
 end
 
 def get_highlights
@@ -83,7 +88,7 @@ def get_thread
 	response["data"]["children"].each do |thread|
 		if thread["data"]["link_flair_text"] == "Highlights"
 			w = Week.last
-			
+
 			unless w.urls.include? thread["data"]["id"]
 				w.urls << thread["data"]["id"] 
 				w.save
