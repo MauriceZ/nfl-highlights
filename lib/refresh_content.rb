@@ -1,5 +1,9 @@
 module RefreshContent
 
+	def highlight_saved?(new_body)
+		Highlight.pluck(:body).any? { |body| body.include?(new_body) }
+	end
+
 	def get_highlights
 		response = {}
 
@@ -18,18 +22,16 @@ module RefreshContent
 			replies = comment["data"]["replies"]
 
 			if !body.nil? && body.include?("gfycat")
-				h = Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id)
-				h.save
-			elsif !replies.nil? && !replies.empty?
+				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
+			elsif !replies.blank?
 				replies["data"]["children"].each do |reply|
 					reply_body = reply["data"]["body_html"]
 					if !reply_body.nil? && reply_body.include?("gfycat")
 						body += reply_body 	
-						h = Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id)
-						h.save
-						break;
+						Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
+						break
 					end
-				end			
+				end
 			end
 		end
 	end
@@ -42,11 +44,9 @@ module RefreshContent
 			break if response.code === 200
 		end
 
-		latest_week = Week.maximum(:week_number)
-
 		if Time.now.in_time_zone('America/New_York').thursday?
-			w = Week.new(:week_number => latest_week+1)
-			w.save
+			latest_week = Week.maximum(:week_number)
+			Week.new(:week_number => latest_week+1).save
 		end
 
 		response["data"]["children"].each do |thread|
@@ -58,7 +58,32 @@ module RefreshContent
 					w.save
 				end
 
-				break;
+				break
+			end
+		end
+	end
+
+	def get_user_highlights
+		response = {}
+
+		loop do
+			# Get comments from /u/fusir
+			response = HTTParty.get("http://www.reddit.com/user/fusir/comments/.json?sort=new&limit=100")
+			break if response.code === 200
+		end
+
+		week_id = Week.all.last.id
+		week_number = Week.find(week_id).week_number
+		latest = Week.maximum(:updated_at).to_i if (latest = Week.maximum(:created_at).to_i) == 0
+
+		response["data"]["children"].each do |comment|
+			next unless comment["data"]["subreddit"] == "nfl"
+			break if comment["data"]["created_utc"].to_i == latest
+
+			body = comment["data"]["body_html"]
+
+			if !body.nil? && body.include?("gfycat") && !highlight_saved?(body)
+				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			end
 		end
 	end

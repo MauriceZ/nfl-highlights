@@ -17,3 +17,8 @@ desc "Gets the latest highlight thread"
 task :get_thread => :environment do
 	get_thread
 end
+
+desc "Gets the latest highlights from reddit users that commonly post them"
+task :get_user_highlights => :environment do
+	get_user_highlights
+end
