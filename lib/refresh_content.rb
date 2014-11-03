@@ -4,7 +4,7 @@ module RefreshContent
 		response = {}
 
 		loop do
-			response = HTTParty.get("http://www.reddit.com/r/nfl/comments/#{Week.last.urls.last}/.json?limit=10000&depth=1&sort=new")
+			response = HTTParty.get("http://www.reddit.com/r/nfl/comments/#{Week.last.urls.last}/.json?limit=10000&depth=2&sort=new")
 			break if response.code === 200
 		end
 
@@ -15,9 +15,21 @@ module RefreshContent
 			break if comment["data"]["created_utc"].to_i == latest
 
 			body = comment["data"]["body_html"]
+			replies = comment["data"]["replies"]
+
 			if !body.nil? && body.include?("gfycat")
 				h = Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id)
 				h.save
+			elsif !replies.nil? && !replies.empty?
+				replies["data"]["children"].each do |reply|
+					reply_body = reply["data"]["body_html"]
+					if !reply_body.nil? && reply_body.include?("gfycat")
+						body += reply_body 	
+						h = Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id)
+						h.save
+						break;
+					end
+				end			
 			end
 		end
 	end
