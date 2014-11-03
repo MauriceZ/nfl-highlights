@@ -2,6 +2,7 @@ $(function(){
 
 var $vidDiv = $('#vidDiv');
 var vidElem;
+var $gears = $('.uil-gears')
 
 $('body').on('keydown', function(e){
     if (e.keyCode == 27)
@@ -20,6 +21,7 @@ $('.md a').on('click', function(e){
 });
 
 function hoverFunc(href) {
+    $gears.show();
     var currentHref = $vidDiv.data('vidlink');
 
     if (currentHref != href) {
@@ -31,6 +33,7 @@ function hoverFunc(href) {
         $vidDiv.html(vidElem)
     } else {
         $vidDiv.toggle();
+        $gears.hide();
     }
 };
 
@@ -56,6 +59,7 @@ function createVideoElem(href) {
     vidElem.addEventListener("loadeddata", function () {
         centerIt($vidDiv);
         $vidDiv.show();
+        $gears.hide();
     }, false);
 
     return vidElem;
