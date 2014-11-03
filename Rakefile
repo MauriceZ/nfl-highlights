@@ -47,8 +47,12 @@ task :get_thread => :environment do
 	response["data"]["children"].each do |thread|
 		if thread["data"]["link_flair_text"] == "Highlights"
 			w = Week.last
-			w.urls << thread["data"]["id"]
-			w.save
+			
+			unless w.urls.include? thread["data"]["id"]
+				w.urls << thread["data"]["id"] 
+				w.save
+			end
+
 			break;
 		end
 	end
