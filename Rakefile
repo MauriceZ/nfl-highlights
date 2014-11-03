@@ -39,7 +39,7 @@ task :get_thread => :environment do
 
 	latest_week = Week.maximum(:week_number)
 
-	if Time.now.thursday?
+	if Time.now.in_time_zone('America/New_York').thursday?
 		w = Week.new(:week_number => latest_week+1)
 		w.save
 	end
