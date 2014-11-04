@@ -40,7 +40,7 @@ module RefreshContent
 		response = {}
 
 		loop do
-			response = HTTParty.get("http://www.reddit.com/r/nfl/.json?sort=new")
+			response = HTTParty.get("http://www.reddit.com/r/nfl/new.json?limit=50")
 			break if response.code === 200
 		end
 
