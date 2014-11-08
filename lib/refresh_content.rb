@@ -54,7 +54,7 @@ module RefreshContent
 				w = Week.last
 
 				unless w.urls.include? thread["data"]["id"]
-					w.urls << thread["data"]["id"] 
+					w.urls << thread["data"]["id"]
 					w.save
 				end
 

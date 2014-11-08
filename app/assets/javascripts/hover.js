@@ -12,6 +12,7 @@ $('body').on('keydown', function(e){
 $(document).on('click', function(e){
     e.stopPropagation();
     $vidDiv.hide();
+    $gears.hide();
 });
 
 $('.md a').on('click', function(e){
