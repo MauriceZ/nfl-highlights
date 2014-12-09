@@ -4,6 +4,15 @@ module RefreshContent
 		Highlight.pluck(:body).any? { |body| body.include?(new_body) }
 	end
 
+	def slice_unwanted(body)
+		body.gsub!(/gfycat\.com.+\"/, a[/gfycat\.com\/([a-zA-Z]+)/] + '"') # Remove gfycat params
+		body.slice!("request: ")
+		body.slice!("Request: ")
+		body.slice!("REQUEST: ")
+
+		return body
+	end
+
 	def get_highlights
 		response = {}
 
@@ -18,7 +27,7 @@ module RefreshContent
 		response[1]["data"]["children"].each do |comment|
 			break if comment["data"]["created_utc"].to_i == latest
 
-			body = comment["data"]["body_html"]
+			body = slice_unwanted(comment["data"]["body_html"])
 			replies = comment["data"]["replies"]
 
 			if !body.nil? && body.include?("gfycat")
