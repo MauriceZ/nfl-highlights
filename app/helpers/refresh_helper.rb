@@ -1,0 +1,2 @@
+module RefreshHelper
+end

@@ -5,7 +5,9 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root :to => 'weeks#show', :id => Week.last.id
   resources :weeks
-  resources :welcome
+
+  post "/refresh/highlights" => "refresh#highlights"
+  post "/refresh/threads" => "refresh#threads"
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
