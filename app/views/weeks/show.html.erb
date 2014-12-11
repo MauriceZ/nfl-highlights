@@ -32,7 +32,7 @@
 		<% if week.week_number == @week.week_number %>
 			<%= content_tag(:li, "Week #{week.week_number}", id: "currentWeek") %>
 		<% else %>
-			<%= content_tag(:li, link_to("Week #{week.week_number.to_s}", week_path(week))) %>
+			<%= content_tag(:li, link_to("Week #{week.week_number.to_s}", "/week/#{week.week_number}")) %>
 		<% end %>
 	<% end %>
 	</ul>

@@ -5,7 +5,7 @@ class WeeksController < ApplicationController
 
 	def show
 		@weeks = Week.all
-		@week = Week.find(params[:id])
+		@week = Week.find_by week_number: params[:week_number]
 		@highlights = @week.highlights
 	end
 end

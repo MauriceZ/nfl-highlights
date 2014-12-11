@@ -5,8 +5,10 @@ var vidElem;
 var $gears = $('.uil-gears')
 
 $('body').on('keydown', function(e){
-    if (e.keyCode == 27)
+    if (e.keyCode == 27) {
         $vidDiv.hide();
+        $gears.hide();
+    }
 });
 
 $(document).on('click', function(e){

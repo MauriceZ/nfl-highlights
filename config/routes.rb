@@ -3,8 +3,11 @@ Rails.application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
-  root :to => 'weeks#show', :id => Week.last.id
-  resources :weeks
+  root :to => 'weeks#show', :week_number => Week.last.week_number
+  get "/week/:week_number" => "weeks#show"
+
+  get "/week/" => "weeks#index"
+  get "/weeks/" => "weeks#index"
 
   post "/refresh/highlights" => "refresh#highlights"
   post "/refresh/threads" => "refresh#threads"

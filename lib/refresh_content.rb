@@ -5,38 +5,70 @@ module RefreshContent
 	end
 
 	def slice_unwanted(body)
-		body.gsub!(/gfycat\.com.+\"/, a[/gfycat\.com\/([a-zA-Z]+)/] + '"') # Remove gfycat params
-		body.slice!("request: ")
-		body.slice!("Request: ")
-		body.slice!("REQUEST: ")
+		if body.include?("gfycat")
+			body.gsub!(/gfycat\.com.+#.*\"/, body[/gfycat\.com\/([a-zA-Z]+)/] + '"') 	 # Strip gfycat params
+		end
 
-		return body
+		unwanted = ["request: ", "Request: ", "REQUEST: "]
+		unwanted.each { |word| body.slice!(word) }
+
+		body
+	end
+
+	def get_gfy_link(gif)
+		response = {}
+
+		30.times do
+			response = HTTParty.get("http://upload.gfycat.com/transcode?fetchUrl=#{gif}")
+			break if response.code == 200
+		end
+
+		if response.code == 200
+			return "gfycat.com/#{response['gfyName']}"
+		else
+			return gif
+		end
+	end
+
+	def gifs_to_gfy(body)
+		new_body = body.dup
+
+		body.scan(/https?:\/\/(.+\.gif)[^v]/) do |gif|	# Get all .gifs
+			new_body.sub!(gif[0], get_gfy_link(gif[0]))
+		end
+
+		new_body
+	end
+
+	def sanitize(body)
+		slice_unwanted(gifs_to_gfy(body))
 	end
 
 	def get_highlights
 		response = {}
 
-		loop do
+		30.times do
 			response = HTTParty.get("http://www.reddit.com/r/nfl/comments/#{Week.last.urls.last}/.json?limit=10000&depth=2&sort=new")
-			break if response.code === 200
+			break if response.code == 200
 		end
 
-		week_id = Week.all.last.id
+		week_id = Week.last.id
 		latest = Highlight.maximum(:posted_on)
 
 		response[1]["data"]["children"].each do |comment|
 			break if comment["data"]["created_utc"].to_i == latest
 
-			body = slice_unwanted(comment["data"]["body_html"])
+			body = comment["data"]["body_html"]
 			replies = comment["data"]["replies"]
 
-			if !body.nil? && body.include?("gfycat")
+			if !body.nil? && (body.include?(".gif\"") || body.include?("gfycat"))
+				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			elsif !replies.blank?
 				replies["data"]["children"].each do |reply|
 					reply_body = reply["data"]["body_html"]
-					if !reply_body.nil? && reply_body.include?("gfycat")
-						body += reply_body 	
+					if !reply_body.nil? && (reply_body.include?(".gif\"") || reply_body.include?("gfycat"))
+						body += sanitize(reply_body)
 						Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 						break
 					end
@@ -48,9 +80,9 @@ module RefreshContent
 	def get_thread
 		response = {}
 
-		loop do
+		30.times do
 			response = HTTParty.get("http://www.reddit.com/r/nfl/new.json?limit=50")
-			break if response.code === 200
+			break if response.code == 200
 		end
 
 		if Time.now.in_time_zone('America/New_York').thursday?
@@ -75,7 +107,7 @@ module RefreshContent
 	def get_user_highlights
 		response = {}
 
-		loop do
+		30.times do
 			# Get comments from /u/fusir
 			response = HTTParty.get("http://www.reddit.com/user/fusir/comments/.json?sort=new&limit=100")
 			break if response.code === 200
@@ -91,7 +123,8 @@ module RefreshContent
 
 			body = comment["data"]["body_html"]
 
-			if !body.nil? && body.include?("gfycat") && !highlight_saved?(body)
+			if !body.nil? && (body.include?(".gif\"") || body.include?("gfycat")) && !highlight_saved?(body)
+				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			end
 		end
