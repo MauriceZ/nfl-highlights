@@ -33,8 +33,9 @@ module RefreshContent
 	def gifs_to_gfy(body)
 		new_body = body.dup
 
-		body.scan(/https?:\/\/(.+\.gif)[^v]/) do |gif|	# Get all .gifs
-			new_body.sub!(gif[0], get_gfy_link(gif[0]))
+		body.scan(/https?:\/\/(\S+\.gifv?)\"/) do |gif|	# Get all .gifs'
+			gif[0][-1] == "v" ? gfylink = gif[0][0..-2] : gfylink = gif[0]
+			new_body.sub!(gif[0], get_gfy_link(gfylink))
 		end
 
 		new_body
@@ -61,13 +62,13 @@ module RefreshContent
 			body = comment["data"]["body_html"]
 			replies = comment["data"]["replies"]
 
-			if !body.nil? && (body.include?(".gif\"") || body.include?("gfycat"))
+			if !body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat"))
 				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			elsif !replies.blank?
 				replies["data"]["children"].each do |reply|
 					reply_body = reply["data"]["body_html"]
-					if !reply_body.nil? && (reply_body.include?(".gif\"") || reply_body.include?("gfycat"))
+					if !reply_body.nil? && (reply_body =~ /http\S+\.gifv?\"/ || reply_body.include?("gfycat"))
 						body += sanitize(reply_body)
 						Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 						break
@@ -123,7 +124,7 @@ module RefreshContent
 
 			body = comment["data"]["body_html"]
 
-			if !body.nil? && (body.include?(".gif\"") || body.include?("gfycat")) && !highlight_saved?(body)
+			if !body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat")) && !highlight_saved?(body)
 				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			end
