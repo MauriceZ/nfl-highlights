@@ -4,11 +4,15 @@ module RefreshContent
 		Highlight.pluck(:body).any? { |body| body.include?(new_body) }
 	end
 
-	def slice_unwanted(body)
+	def clean_gfy_link(body)
 		if body.include?("gfycat")
 			body.gsub!(/gfycat\.com.+#.*\"/, body[/gfycat\.com\/([a-zA-Z]+)/] + '"') 	 # Strip gfycat params
 		end
 
+		body
+	end
+
+	def remove_unwanted(body)
 		unwanted = ["request: ", "Request: ", "REQUEST: "]
 		unwanted.each { |word| body.slice!(word) }
 
@@ -37,12 +41,12 @@ module RefreshContent
 			gif[0][-1] == "v" ? gfylink = gif[0][0..-2] : gfylink = gif[0]
 			new_body.sub!(gif[0], get_gfy_link(gfylink))
 		end
-
+		
 		new_body
 	end
 
 	def sanitize(body)
-		slice_unwanted(gifs_to_gfy(body))
+		clean_gfy_link(gifs_to_gfy(body))
 	end
 
 	def get_highlights
@@ -65,10 +69,11 @@ module RefreshContent
 			if !body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat"))
 				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
-			elsif !replies.blank?
+			elsif !replies.blank?	# Get replies for requests
 				replies["data"]["children"].each do |reply|
 					reply_body = reply["data"]["body_html"]
 					if !reply_body.nil? && (reply_body =~ /http\S+\.gifv?\"/ || reply_body.include?("gfycat"))
+						body = remove_unwanted(body)	# Unwanted words only appear when it is a request
 						body += sanitize(reply_body)
 						Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 						break
