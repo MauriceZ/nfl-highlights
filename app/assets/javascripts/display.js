@@ -23,6 +23,8 @@ $('.md a').on('click', function(e){
     e.preventDefault();
     e.stopImmediatePropagation();
 
+    $display.hide();
+    
     var url = $(this).attr('href')
 
     if (url.indexOf("gfycat") > -1) {
