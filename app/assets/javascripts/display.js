@@ -1,42 +1,56 @@
 $(function(){
 
-var $vidDiv = $('#vidDiv');
+var $display = $('#display');
 var vidElem;
 var $gears = $('.uil-gears')
 
 $('body').on('keydown', function(e){
     if (e.keyCode == 27) {
-        $vidDiv.hide();
+        $display.hide();
         $gears.hide();
+        // Pause video on hide
     }
 });
 
 $(document).on('click', function(e){
     e.stopPropagation();
-    $vidDiv.hide();
+    $display.hide();
+    // Pause video on hide
     $gears.hide();
 });
 
 $('.md a').on('click', function(e){
     e.preventDefault();
     e.stopImmediatePropagation();
-    hoverFunc($(this).attr('href'));
+
+    var url = $(this).attr('href')
+
+    if (url.indexOf("gfycat") > -1) {
+        displayVideo(url);
+    }
+    else if (isImage(url)) {
+        displayImage(url);
+    }
+    else {
+        window.open(url);
+    }
 });
 
-function hoverFunc(href) {
+function displayVideo(href) {
     $gears.show();
-    var currentHref = $vidDiv.data('vidlink');
+    var currentHref = $display.data('link');
 
     if (currentHref != href) {
-        $vidDiv.data('vidlink', href);
+        $display.data('link', href);
         if (vidElem !== undefined) {
             vidElem.remove();
         }
         vidElem = createVideoElem(href);
-        $vidDiv.html(vidElem)
+        $display.html(vidElem)
     } else {
-        $vidDiv.toggle();
+        $display.toggle();
         $gears.hide();
+        // Play video on show
     }
 };
 
@@ -59,24 +73,48 @@ function createVideoElem(href) {
         vidElem.appendChild(source);
     });
 
-    vidElem.addEventListener("loadeddata", function () {
-        centerIt($vidDiv);
-        $vidDiv.show();
+    vidElem.addEventListener("loadeddata", function() {
+        center($display);
+        $display.show();
         $gears.hide();
     }, false);
 
     return vidElem;
 }
 
-function centerIt($elem) {
+function displayImage(url) {
+    $gears.show();
+    $display.html("<img src='" + url + "'>");
+    $display.data('link', url);
+
+    setTimeout(function(){  // Set timeout is needed so that the element is loaded
+        center($display);
+        $display.show();
+        $gears.hide();
+    }, 200);
+}
+
+function isImage(url) {
+    var type = url.substr(url.length - 4);
+    if (type == ".jpg" || type == ".png")
+        return true;
+    return false;
+}
+
+function center($elem) {
     var winWidth = $(window).outerWidth(),
-        winHeight = $(window).outerHeight(),
-        elemWidth = $elem.width(),
+        winHeight = $(window).outerHeight();
+
+    if ($elem.height() > winHeight - 40) {
+        $elem.children('img').height(winHeight - 40);
+    }
+
+    var elemWidth = $elem.width(),
         elemHeight = $elem.height();
 
     $elem.css({
         "left": (winWidth-elemWidth)/2,
-        "top": (winHeight-elemHeight)/2
+        "top": (winHeight-elemHeight)/2,
     });
 }
 

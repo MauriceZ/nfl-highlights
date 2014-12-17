@@ -2,7 +2,7 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-#vidDiv {
+#display {
 	position: fixed;
 	z-index: 9999;
 	display: none;
@@ -22,4 +22,3 @@
 	margin-left: -25px;
 	display: none;
 }
-	
