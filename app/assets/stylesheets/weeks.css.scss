@@ -22,3 +22,13 @@
 	margin-left: -25px;
 	display: none;
 }
+
+a {
+	text-decoration: none;
+}
+
+.image:after {
+	content: " \f03e";
+	font-family: FontAwesome;
+	text-decoration: none !important;
+}

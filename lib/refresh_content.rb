@@ -4,6 +4,31 @@ module RefreshContent
 		Highlight.pluck(:body).any? { |body| body.include?(new_body) }
 	end
 
+	def insert_gfy_size(body)
+
+		new_body = body.dup
+		if body.include?("gfycat")
+			body.scan(/a href=.+gfycat.com\/[a-zA-Z]+\"/) do |a|
+				gfy_id = a.scan(/gfycat.com\/([a-zA-Z]+)/)[0][0]
+
+				gfy_response = HTTParty.get("http://gfycat.com/cajax/get/#{gfy_id}")
+
+				mp4_url = gfy_response["gfyItem"]["mp4Url"]
+				mp4_size = mp4_url.scan(/http:\/\/(\w+)/)[0][0]
+
+				webm_url = gfy_response["gfyItem"]["webmUrl"]
+				webm_size = webm_url.scan(/http:\/\/(\w+)/)[0][0]
+
+				new_a = a.dup
+				new_a.insert(2, "data-mp4size=\"#{mp4_size}\" data-webmsize=\"#{webm_size}\" ")
+
+				new_body.sub!(a, new_a)
+			end
+		end
+
+		new_body
+	end
+
 	def clean_gfy_link(body)
 		if body.include?("gfycat")
 			body.gsub!(/gfycat\.com.+#.*\"/, body[/gfycat\.com\/([a-zA-Z]+)/] + '"') 	 # Strip gfycat params
@@ -46,7 +71,7 @@ module RefreshContent
 	end
 
 	def sanitize(body)
-		clean_gfy_link(gifs_to_gfy(body))
+		insert_gfy_size(clean_gfy_link(gifs_to_gfy(body)))
 	end
 
 	def get_highlights

@@ -1,15 +1,18 @@
 $(function(){
 
+$('a[href$=".png"], a[href$=".jpg"], a[href$=".jpeg"]').addClass("image");
+
 var $display = $('#display');
-var vidElem;
+var $vidElem;
 var $gears = $('.uil-gears');
+var currentUrl;
 
 $('body').on('keydown', function(e){
     if (e.keyCode == 27) {
         $display.hide();
         $gears.hide();
-        if (vidElem)
-            vidElem.pause();
+        if ($vidElem)
+            $vidElem.pause();
     }
 });
 
@@ -17,22 +20,20 @@ $(document).on('click', function(e){
     e.stopPropagation();
     $display.hide();
     $gears.hide();
-    if (vidElem)
-        vidElem.pause();
+    if ($vidElem)
+        $vidElem.pause();
 });
 
 $('.md a').on('click', function(e){
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    
     var url = $(this).attr('href')
 
     if (url.indexOf("gfycat") > -1) {
-        displayVideo(url);
+        displayVideo($(this));
     }
     else if (isImage(url)) {
-        $display.hide();
         displayImage(url);
     }
     else {
@@ -40,67 +41,74 @@ $('.md a').on('click', function(e){
     }
 });
 
-function displayVideo(href) {
+function displayVideo($a) {
     $gears.show();
-    var currentHref = $display.data('link');
+    var url = $a.attr('href');
 
-    if (currentHref != href) {
-        $display.data('link', href);
-        if (vidElem !== undefined) {
-            vidElem.remove();
+    if (currentUrl != url) {
+        currentUrl = url;
+        if ($vidElem !== undefined) {
+            $vidElem.remove();
         }
-        vidElem = createVideoElem(href);
-        $display.html(vidElem)
-    } else {
-        $display.show();
+        $vidElem = createVideoElem($a);
+        $display.html($vidElem)
+    }
+    else {
+        $display.toggle();
         $gears.hide();
-        vidElem.play();
+        $vidElem.paused ? $vidElem.play() : $vidElem.pause();
     }
 };
 
-function createVideoElem(href) {
-    var vidElem = document.createElement('video');
-    vidElem.autoplay = true;
-    vidElem.loop = true;
-    vidElem.controls = false;
+function createVideoElem($a) {
+    $vidElem = document.createElement('video');
+    $vidElem.autoplay = true;
+    $vidElem.loop = true;
+    $vidElem.controls = false;
 
-    /* For Safari */
-    var source = document.createElement('source');
-    var src = href.replace('www.', '').replace('gfycat', 'giant.gfycat') + '.mp4';
-    source.src = src;
-    vidElem.appendChild(source);
+    var url = $a.attr('href');
 
-    ['fat', 'zippy', 'giant'].forEach(function(sizeName) {
+    [{ size: $a.data('mp4size'), type: '.mp4' }, { size: $a.data('webmsize'), type: '.webm' }].forEach(function(gfy) {
         var source = document.createElement('source');
-        var src = href.replace('www.', '').replace('gfycat', sizeName + '.gfycat') + '.webm';
+        var src = url.replace('www.', '').replace('gfycat', gfy['size'] + '.gfycat') + gfy['type'];
         source.src = src;
-        vidElem.appendChild(source);
+        $vidElem.appendChild(source);
     });
 
-    vidElem.addEventListener("loadeddata", function() {
+    $vidElem.addEventListener("loadeddata", function() {
         center($display);
-        $display.show();
-        $gears.hide();
+        setTimeout(function() { 
+            $display.show(); 
+            $gears.hide();
+        }, 10);
     }, false);
 
-    return vidElem;
+    return $vidElem;
 }
 
 function displayImage(url) {
-    $gears.show();
-    $display.html("<img src='" + url + "'>");
-    $display.data('link', url);
+    if (currentUrl != url) {
+        $display.hide();
+        $gears.show();
+        $display.html("<img src='" + url + "'>");
+        currentUrl = url;
 
-    setTimeout(function(){  // Set timeout is needed so that the img element is loaded
-        center($display);
-        $display.show();
+        setTimeout(function(){  // Set timeout is needed so that the img element is loaded
+            center($display);
+            $display.show();
+            $gears.hide();
+        }, 200);
+    }
+    else {
+        $display.toggle();
         $gears.hide();
-    }, 200);
+    }
+    
 }
 
 function isImage(url) {
-    var type = url.substr(url.length - 4);
-    if (type == ".jpg" || type == ".png")
+    var imageIndex = url.indexOf(".jpg") + url.indexOf(".png") + url.indexOf(".jpeg");
+    if (imageIndex > -3)
         return true;
     return false;
 }

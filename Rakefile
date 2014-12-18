@@ -22,3 +22,13 @@ desc "Gets the latest highlights from reddit users that commonly post them"
 task :get_user_highlights => :environment do
 	get_user_highlights
 end
+
+desc "Format all the highlights for new conventions"
+task :sanitize_highlights => :environment do
+	Highlight.all.each do |highlight|
+		a = highlight
+		a.body = sanitize(a.body)
+		a.save
+		puts "Done!"
+	end
+end
