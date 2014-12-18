@@ -2,16 +2,83 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+@font-face {
+  font-family: 'Titillium Web';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Titillium Web'), local('TitilliumWeb-Regular'), url(http://fonts.gstatic.com/s/titilliumweb/v4/7XUFZ5tgS-tD6QamInJTcZ_o9VAbKgK36i-4snuAuCM.woff) format('woff');
+}
+
+body, html {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: "Titillium Web";
+}
+
+a {
+	text-decoration: none;
+}
+
+.topbar {
+
+	padding: 1px 0;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	background-color: #FFF;
+	box-shadow: 0 0 4px rgba(0, 0, 0, .4);
+
+	ul {
+		margin: 0;
+		padding: 0;
+		text-align: center;
+	}
+
+	li {
+		display: inline-block;
+		margin: 0 10px;
+	}
+
+	a {
+		color: rgb(140,140,140);
+	}
+
+	.current-week {
+		font-weight: 700;
+	}
+
+}
+
+.highlights-section {
+
+	margin-top: 70px;
+	padding: 0 100px;
+
+	.highlights {
+
+		padding: 0;
+
+		li:first-child {
+			border-top: none;
+		}
+
+		li {
+			font-size: 17px;
+			list-style-type: none;
+			border-top: 1px solid rgb(210,210,210);
+		}
+
+	}
+
+}
+
 #display {
 	position: fixed;
 	z-index: 9999;
 	display: none;
-}
-
-#week-list {
-	position: absolute;
-	top: 40px;
-	right: 100px;
 }
 
 .uil-gears {
@@ -23,12 +90,26 @@
 	display: none;
 }
 
-a {
-	text-decoration: none;
-}
-
 .image:after {
 	content: " \f03e";
 	font-family: FontAwesome;
 	text-decoration: none !important;
 }
+
+table, th, td {
+	border: 1px solid rgb(210,210,210);
+	border-collapse: collapse;
+}
+
+table {
+	margin: 25px 0;
+}
+
+th {
+	text-align: center;
+}
+
+td {
+	padding: 0 5px;
+}
+

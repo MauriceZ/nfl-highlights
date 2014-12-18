@@ -77,12 +77,24 @@ function createVideoElem($a) {
         });
     }
     else {
-        [{ size: $a.data('mp4size'), type: '.mp4' }, { size: $a.data('webmsize'), type: '.webm' }].forEach(function(gfy) {
+        var hasSize = url.indexOf("giant.gfycat.com") > -1 || url.indexOf("fat.gfycat.com") > -1 || url.indexOf("zippy.gfycat.com") > -1;
+
+        if (hasSize) {
             var source = document.createElement('source');
-            var reg = /https?:.+gfycat.com\/(\w+)/;
-            source.src = "http://" + gfy['size'] + ".gfycat.com/" + reg.exec(url)[1] + gfy['type'];
+            var reg = /https?:.+gfycat.com\/\w+/;
+            source.src = reg.exec(url)[1];
+
             $vidElem.appendChild(source);
-        });    
+        }
+        else {
+           [{ size: $a.data('mp4size'), type: '.mp4' }, { size: $a.data('webmsize'), type: '.webm' }].forEach(function(gfy) {
+               var source = document.createElement('source');
+               var reg = /https?:.+gfycat.com\/(\w+)/;
+               source.src = "http://" + gfy['size'] + ".gfycat.com/" + reg.exec(url)[1] + gfy['type'];
+
+               $vidElem.appendChild(source);
+           });  
+        }
     }
 
     $vidElem.addEventListener("loadeddata", function() {
@@ -117,18 +129,16 @@ function displayImage(url) {
 }
 
 function isImage(url) {
-    var imageIndex = url.indexOf(".jpg") + url.indexOf(".png") + url.indexOf(".jpeg");
-    if (imageIndex > -3)
-        return true;
-    return false;
+    var isImage = url.indexOf(".jpg") > -1 || url.indexOf(".png") > -1 || url.indexOf(".jpeg") > -1;
+    return isImage;
 }
 
 function center($elem) {
     var winWidth = $(window).outerWidth(),
         winHeight = $(window).outerHeight();
 
-    if ($elem.height() > winHeight - 40) {
-        $elem.children('img').height(winHeight - 40);
+    if ($elem.height() > winHeight - 70) {
+        $elem.children('img, video').height(winHeight - 70);
     }
 
     var elemWidth = $elem.width(),

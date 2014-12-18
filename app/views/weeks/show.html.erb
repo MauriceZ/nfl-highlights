@@ -1,7 +1,18 @@
-<h1>Week <%= @week.week_number %> Highlights</h1>
-
-<section>
+<nav class="topbar">
 	<ul>
+	<% @weeks.each do |week| %>
+		<% if week.week_number == @week.week_number %>
+			<%= content_tag(:li, "Week #{week.week_number}", class: "current-week") %>
+		<% else %>
+			<%= content_tag(:li, link_to("Week #{week.week_number.to_s}", "/week/#{week.week_number}")) %>
+		<% end %>
+	<% end %>
+	</ul>
+</nav>
+
+<section class="highlights-section">
+	<h1>Week <%= @week.week_number %> Highlights</h1>
+	<ul class="highlights">
 	<% @highlights.sort_by { |arr| arr[:posted_on] }.reverse.each do |highlight| %>
 		<%= content_tag(:li, CGI.unescapeHTML(highlight.body).html_safe) %>
 	<% end %>
@@ -25,15 +36,3 @@
   </g>
 </svg>
 <!-- End loading gears -->
-
-<aside id="week-list">
-	<ul>
-	<% @weeks.reverse.each do |week| %>
-		<% if week.week_number == @week.week_number %>
-			<%= content_tag(:li, "Week #{week.week_number}", id: "currentWeek") %>
-		<% else %>
-			<%= content_tag(:li, link_to("Week #{week.week_number.to_s}", "/week/#{week.week_number}")) %>
-		<% end %>
-	<% end %>
-	</ul>
-</aside>
