@@ -2,28 +2,29 @@ $(function(){
 
 var $display = $('#display');
 var vidElem;
-var $gears = $('.uil-gears')
+var $gears = $('.uil-gears');
 
 $('body').on('keydown', function(e){
     if (e.keyCode == 27) {
         $display.hide();
         $gears.hide();
-        // Pause video on hide
+        if (vidElem)
+            vidElem.pause();
     }
 });
 
 $(document).on('click', function(e){
     e.stopPropagation();
     $display.hide();
-    // Pause video on hide
     $gears.hide();
+    if (vidElem)
+        vidElem.pause();
 });
 
 $('.md a').on('click', function(e){
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    $display.hide();
     
     var url = $(this).attr('href')
 
@@ -31,6 +32,7 @@ $('.md a').on('click', function(e){
         displayVideo(url);
     }
     else if (isImage(url)) {
+        $display.hide();
         displayImage(url);
     }
     else {
@@ -50,9 +52,9 @@ function displayVideo(href) {
         vidElem = createVideoElem(href);
         $display.html(vidElem)
     } else {
-        $display.toggle();
+        $display.show();
         $gears.hide();
-        // Play video on show
+        vidElem.play();
     }
 };
 
@@ -89,7 +91,7 @@ function displayImage(url) {
     $display.html("<img src='" + url + "'>");
     $display.data('link', url);
 
-    setTimeout(function(){  // Set timeout is needed so that the element is loaded
+    setTimeout(function(){  // Set timeout is needed so that the img element is loaded
         center($display);
         $display.show();
         $gears.hide();
