@@ -25,10 +25,11 @@ end
 
 desc "Format all the highlights for new conventions"
 task :sanitize_highlights => :environment do
-	Highlight.all.each do |highlight|
+	num_highlights = Highlight.all.length
+	Highlight.all.each_with_index do |i, highlight|
+		puts "#{i+1} of #{num_highlights}"
 		a = highlight
 		a.body = sanitize(a.body)
 		a.save
-		puts "Done!"
 	end
 end
