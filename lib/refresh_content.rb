@@ -7,7 +7,7 @@ module RefreshContent
 	def insert_gfy_size(body)
 
 		new_body = body.dup
-		if body.include?("gfycat")
+		if body.include?("gfycat.com")
 			body.scan(/a href=.+gfycat.com\/[a-zA-Z]+\"/) do |a|
 				gfy_id = a.scan(/gfycat.com\/([a-zA-Z]+)/)[0][0]
 
@@ -30,7 +30,7 @@ module RefreshContent
 	end
 
 	def clean_gfy_link(body)
-		if body.include?("gfycat")
+		if body.include?("gfycat.com")
 			body.gsub!(/gfycat\.com.+#.*\"/, body[/gfycat\.com\/([a-zA-Z]+)/] + '"') 	 # Strip gfycat params
 		end
 
@@ -91,13 +91,13 @@ module RefreshContent
 			body = comment["data"]["body_html"]
 			replies = comment["data"]["replies"]
 
-			if !body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat"))
+			if !body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat.com"))
 				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			elsif !replies.blank?	# Get replies for requests
 				replies["data"]["children"].each do |reply|
 					reply_body = reply["data"]["body_html"]
-					if !reply_body.nil? && (reply_body =~ /http\S+\.gifv?\"/ || reply_body.include?("gfycat"))
+					if !reply_body.nil? && (reply_body =~ /http\S+\.gifv?\"/ || reply_body.include?("gfycat.com"))
 						body = remove_unwanted(body)	# Unwanted words only appear when it is a request
 						body += sanitize(reply_body)
 						Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
