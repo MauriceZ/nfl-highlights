@@ -5,13 +5,14 @@ module RefreshContent
 	end
 
 	def insert_gfy_size(body)
-
 		new_body = body.dup
 		if body.include?("gfycat.com")
 			body.scan(/a href=.+gfycat.com\/[a-zA-Z]+\"/) do |a|
 				gfy_id = a.scan(/gfycat.com\/([a-zA-Z]+)/)[0][0]
 
 				gfy_response = HTTParty.get("http://gfycat.com/cajax/get/#{gfy_id}")
+
+				next if gfy_response["error"]
 
 				mp4_url = gfy_response["gfyItem"]["mp4Url"]
 				mp4_size = mp4_url.scan(/http:\/\/(\w+)/)[0][0]
@@ -62,8 +63,7 @@ module RefreshContent
 	def gifs_to_gfy(body)
 		new_body = body.dup
 
-		body.scan(/https?:\/\/(\S+\.gifv?)\"/) do |gif|	# Get all .gifs'
-			gif[0][-1] == "v" ? gfylink = gif[0][0..-2] : gfylink = gif[0]
+		body.scan(/https?:\/\/(\S+\.gif)[^v]\"/) do |gif|	# Get all .gifs'
 			new_body.sub!(gif[0], get_gfy_link(gfylink))
 		end
 		
@@ -91,7 +91,7 @@ module RefreshContent
 			body = comment["data"]["body_html"]
 			replies = comment["data"]["replies"]
 
-			if !body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat.com"))
+			if !body.nil? && (body =~ /http\S+\.gif[^v]\"/ || body.include?("gfycat.com"))
 				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			elsif !replies.blank?	# Get replies for requests

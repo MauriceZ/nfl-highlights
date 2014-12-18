@@ -30,7 +30,7 @@ $('.md a').on('click', function(e){
 
     var url = $(this).attr('href')
 
-    if (url.indexOf("gfycat") > -1) {
+    if (url.indexOf("gfycat.com") > -1 || url.indexOf(".gifv") > -1) {
         displayVideo($(this));
     }
     else if (isImage(url)) {
@@ -68,12 +68,22 @@ function createVideoElem($a) {
 
     var url = $a.attr('href');
 
-    [{ size: $a.data('mp4size'), type: '.mp4' }, { size: $a.data('webmsize'), type: '.webm' }].forEach(function(gfy) {
-        var source = document.createElement('source');
-        var src = url.replace('www.', '').replace('gfycat', gfy['size'] + '.gfycat') + gfy['type'];
-        source.src = src;
-        $vidElem.appendChild(source);
-    });
+    if (url.indexOf(".gifv") > -1) {
+        [".mp4", ".webm"].forEach(function(type) {
+            var source = document.createElement('source');
+            var reg = /(https?:.+imgur.com\/\w+)\.gifv/;
+            source.src = reg.exec(url)[1] + type;
+            $vidElem.appendChild(source);
+        });
+    }
+    else {
+        [{ size: $a.data('mp4size'), type: '.mp4' }, { size: $a.data('webmsize'), type: '.webm' }].forEach(function(gfy) {
+            var source = document.createElement('source');
+            var reg = /https?:.+gfycat.com\/(\w+)/;
+            source.src = "http://" + gfy['size'] + ".gfycat.com/" + reg.exec(url)[1] + gfy['type'];
+            $vidElem.appendChild(source);
+        });    
+    }
 
     $vidElem.addEventListener("loadeddata", function() {
         center($display);
