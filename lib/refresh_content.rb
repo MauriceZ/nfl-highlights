@@ -7,8 +7,8 @@ module RefreshContent
 	def insert_gfy_size(body)
 		new_body = body.dup
 		if body.include?("gfycat.com")
-			body.scan(/a href=.+gfycat.com\/[a-zA-Z]+\"/) do |a|
-				gfy_id = a.scan(/gfycat.com\/([a-zA-Z]+)/)[0][0]
+			body.scan(/a href=\"https?:\/\/(?:www\.)?gfycat\.com\/[a-zA-Z]+/) do |a|
+				gfy_id = a.scan(/gfycat\.com\/([a-zA-Z]+)/)[0][0]
 
 				gfy_response = HTTParty.get("http://gfycat.com/cajax/get/#{gfy_id}")
 
@@ -31,11 +31,14 @@ module RefreshContent
 	end
 
 	def clean_gfy_link(body)
+		new_body = body.dup
 		if body.include?("gfycat.com")
-			body.gsub!(/gfycat\.com.+#.*\"/, body[/gfycat\.com\/([a-zA-Z]+)/] + '"') 	 # Strip gfycat params
+			body.scan(/gfycat\.com\/\w+#\S*\"/) do |link|
+				new_body.gsub!(link, link[/gfycat\.com\/\w+/] + '"') 	 # Strip gfycat params
+			end
 		end
 
-		body
+		new_body
 	end
 
 	def remove_unwanted(body)
