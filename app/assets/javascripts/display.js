@@ -103,7 +103,7 @@ $(document).on('ready page:load', function() {
             setTimeout(function() { 
                 $display.show(); 
                 $gears.hide();
-            }, 10);
+            }, 200);
         }, false);
 
         return $vidElem;

@@ -66,7 +66,7 @@ module RefreshContent
 	def gifs_to_gfy(body)
 		new_body = body.dup
 
-		body.scan(/https?:\/\/(\S+\.gif)[^v]\"/) do |gif|	# Get all .gifs'
+		body.scan(/https?:\/\/(\S+\.gif)\"/) do |gif|	# Get all .gifs'
 			new_body.sub!(gif[0], get_gfy_link(gfylink))
 		end
 		
@@ -94,7 +94,7 @@ module RefreshContent
 			body = comment["data"]["body_html"]
 			replies = comment["data"]["replies"]
 
-			if !body.nil? && (body =~ /http\S+\.gif[^v]\"/ || body.include?("gfycat.com"))
+			if !body.nil? && (body =~ /http\S+\.gif\"/ || body.include?("gfycat.com"))
 				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			elsif !replies.blank?	# Get replies for requests
