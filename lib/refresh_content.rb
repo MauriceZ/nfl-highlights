@@ -57,7 +57,7 @@ module RefreshContent
 		end
 
 		if response.code == 200
-			return "gfycat.com/#{response['gfyName']}"
+			return "http://gfycat.com/#{response['gfyName']}"
 		else
 			return gif
 		end
@@ -66,8 +66,8 @@ module RefreshContent
 	def gifs_to_gfy(body)
 		new_body = body.dup
 
-		body.scan(/https?:\/\/(\S+\.gif)\"/) do |gif|	# Get all .gifs'
-			new_body.sub!(gif[0], get_gfy_link(gfylink))
+		body.scan(/(https?:\/\/\S+\.gif)\"/) do |gif|	# Get all .gifs'
+			new_body.sub!(gif[0], get_gfy_link(gif[0]))
 		end
 		
 		new_body
