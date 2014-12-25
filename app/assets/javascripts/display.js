@@ -98,7 +98,7 @@ $(document).on('ready page:load', function() {
             }
         }
 
-        $vidElem.addEventListener("loadeddata", function() {
+        $vidElem.addEventListener("canplaythrough", function() {
             center($display);
             setTimeout(function() { 
                 $display.show(); 
