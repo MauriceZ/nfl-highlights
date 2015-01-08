@@ -94,7 +94,7 @@ module RefreshContent
 			body = comment["data"]["body_html"]
 			replies = comment["data"]["replies"]
 
-			if !body.nil? && (body =~ /http\S+\.gif\"/ || body.include?("gfycat.com"))
+			if !body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat.com"))
 				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			elsif !replies.blank?	# Get replies for requests
