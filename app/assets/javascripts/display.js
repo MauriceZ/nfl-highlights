@@ -5,13 +5,13 @@ $(document).on('ready page:load', function() {
 
     var $display = $('#display');
     var $vidElem;
-    var $gears = $('.uil-gears');
+    var $loading = $('.loading');
     var currentUrl;
 
     $('body').on('keydown', function(e){
         if (e.keyCode == 27) {
             $display.hide();
-            $gears.hide();
+            $loading.hide();
             if ($vidElem)
                 $vidElem.pause();
         }
@@ -20,7 +20,7 @@ $(document).on('ready page:load', function() {
     $(document).on('click', function(e){
         e.stopPropagation();
         $display.hide();
-        $gears.hide();
+        $loading.hide();
         if ($vidElem)
             $vidElem.pause();
     });
@@ -43,7 +43,7 @@ $(document).on('ready page:load', function() {
     });
 
     function displayVideo($a) {
-        $gears.show();
+        $loading.show();
         var url = $a.attr('href');
 
         if (currentUrl != url) {
@@ -56,7 +56,7 @@ $(document).on('ready page:load', function() {
         }
         else {
             $display.toggle();
-            $gears.hide();
+            $loading.hide();
             $vidElem.paused ? $vidElem.play() : $vidElem.pause();
         }
     };
@@ -102,7 +102,7 @@ $(document).on('ready page:load', function() {
             center($display);
             setTimeout(function() { 
                 $display.show(); 
-                $gears.hide();
+                $loading.hide();
             }, 200);
         }, false);
 
@@ -112,19 +112,19 @@ $(document).on('ready page:load', function() {
     function displayImage(url) {
         if (currentUrl != url) {
             $display.hide();
-            $gears.show();
+            $loading.show();
             $display.html("<img src='" + url + "'>");
             currentUrl = url;
 
             setTimeout(function(){  // Set timeout is needed so that the img element is loaded
                 center($display);
                 $display.show();
-                $gears.hide();
+                $loading.hide();
             }, 200);
         }
         else {
             $display.toggle();
-            $gears.hide();
+            $loading.hide();
         }
         
     }

@@ -81,13 +81,34 @@ a {
 	display: none;
 }
 
-.uil-gears {
+.loading {
 	position: fixed;
 	left: 50%;
 	top: 50%;
-	margin-top: -25px;
-	margin-left: -25px;
+	margin-top: -40px;
+	margin-left: -40px;
 	display: none;
+	width: 80px;
+	height: 80px;
+	border-radius: 40px;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	border: solid 4px rgb(220,220,220);
+	border-top-color: rgb(150,150,150);
+	-webkit-animation: spin 1s infinite linear;
+	animation: spin 1s infinite linear;
+}
+
+@-webkit-keyframes spin { 
+	100% { 
+		-webkit-transform: rotate(360deg); 
+	} 
+}
+
+@keyframes spin { 
+	100% { 
+		transform: rotate(360deg); 
+	} 
 }
 
 .image:after {
