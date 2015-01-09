@@ -44,7 +44,7 @@ class HighlightsController < ApplicationController
 
 	def search
 		@weeks = Week.all
-		@highlights = Highlight.search(params[:search])
+		@highlights = Highlight.search(params[:search]).sort_by { |arr| arr[:posted_on] }.reverse
 		@title = "Results for \"#{params[:search]}\""
 
 		render "show"
