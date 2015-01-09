@@ -3,6 +3,6 @@ class Highlight < ActiveRecord::Base
 
 	def self.search(keyword)
 		return [] if keyword.blank?
-		where('body ILIKE ?', "%#{keyword}%")
+		where('body ILIKE ? AND body NOT ILIKE \'%&lt;table&gt;%\'', "%#{keyword}%")
 	end
 end
