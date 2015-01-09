@@ -31,7 +31,7 @@ $(document).on('ready page:load', function() {
 
         var url = $(this).attr('href')
 
-        if (url.indexOf("gfycat.com") > -1 || url.indexOf(".gifv") > -1) {
+        if (url.indexOf("gfycat.com") > -1 || (url.indexOf("imgur") > -1 && url.indexOf(".gif") > -1)) {
             displayVideo($(this));
         }
         else if (isImage(url)) {
@@ -69,10 +69,10 @@ $(document).on('ready page:load', function() {
 
         var url = $a.attr('href');
 
-        if (url.indexOf(".gifv") > -1) {
+        if (url.indexOf("imgur") > -1 && url.indexOf(".gif") > -1) {
             [".mp4", ".webm"].forEach(function(type) {
                 var source = document.createElement('source');
-                var reg = /(https?:.+imgur.com\/\w+)\.gifv/;
+                var reg = /(https?:.+imgur.com\/\w+)\.gif/;
                 source.src = reg.exec(url)[1] + type;
                 $vidElem.appendChild(source);
             });

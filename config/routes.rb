@@ -3,14 +3,16 @@ Rails.application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
-  root :to => 'weeks#show', :week_number => Week.last.week_number
-  get "/week/:week_number" => "weeks#show"
+  root :to => 'highlights#show', :week_number => Week.last.week_number
+  get "/highlights/:week_number" => "highlights#show"
 
-  get "/week/" => "weeks#index"
-  get "/weeks/" => "weeks#index"
+  get "/highlights/" => "highlights#index"
+  get "/highlight/" => "highlights#index"
 
   post "/refresh/highlights" => "refresh#highlights"
   post "/refresh/threads" => "refresh#threads"
+
+  get "/u/:username" => redirect("http://www.reddit.com/u/%{username}")
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
