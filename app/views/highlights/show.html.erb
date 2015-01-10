@@ -1,7 +1,7 @@
 <%= render "topbar" %>
 
 <section class="highlights-section">
-	<h1><%= @title %></h1>
+	<h1><%= @heading %></h1>
 	<ul class="highlights">
 		<% @highlights.each do |highlight| %>
 			<%= content_tag(:li, CGI.unescapeHTML(highlight.body).html_safe) %>

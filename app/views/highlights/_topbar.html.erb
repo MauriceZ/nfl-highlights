@@ -1,14 +1,14 @@
 <nav class="topbar">
 	<ul>
-		<% @weeks.each do |week| %>
+		<% Week.all.each do |week| %>
 			<% if @week && week.week_number == @week.week_number %>
 				<%= content_tag(:li, get_week_name(week.week_number), class: "current-week") %>
 			<% else %>
 				<%= content_tag(:li, link_to(get_week_name(week.week_number), "/highlights/#{week.week_number}")) %>
 			<% end %>
 		<% end %>
-
 	</ul>
+	
 	<%= form_tag("/highlights/", :method => "get", :enforce_utf8 => false, :id => "searchform") do %>
 		<%= text_field_tag :search, "", :id => "searchbar", :placeholder => "Search" %>
 		<%= submit_tag "", :name => nil, :id => "search-btn" %>

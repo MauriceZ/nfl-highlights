@@ -4,23 +4,20 @@ class HighlightsController < ApplicationController
 	def index
 		search if params[:search]
 		@weeks = Week.all
+		@title = "NFL Highlights"
 	end
 
 	def show
-		@weeks = Week.all
 		@week = Week.find_by week_number: params[:week_number]
 		@highlights = @week.highlights.sort_by { |arr| arr[:posted_on] }.reverse
-		@title = get_title(@week.week_number)
+		@heading = get_heading(@week.week_number)
+		@title = "#{get_week_name(@week.week_number)} | NFL Highlights"
+		@title.prepend("Week ") if @week.week_number <= 17
 	end
 
-	def get_title(week_number)
-		if week_number <= 17
-			title = "Week #{week_number} Highlights" 
-		else
-			title = get_week_name(week_number) + " Highlights"
-		end
-
-		title
+	def get_heading(week_number)
+		heading = get_week_name(week_number) + " Highlights"
+		heading.prepend("Week ") if week_number <= 17
 	end
 
 	def get_week_name(week_number)
@@ -43,9 +40,9 @@ class HighlightsController < ApplicationController
 	end
 
 	def search
-		@weeks = Week.all
 		@highlights = Highlight.search(params[:search]).sort_by { |arr| arr[:posted_on] }.reverse
-		@title = "Results for \"#{params[:search]}\""
+		@heading = "Results for \"#{params[:search]}\""
+		@title = "Search Results | NFL Highlights"
 
 		render "show"
 	end
