@@ -18,6 +18,8 @@ class HighlightsController < ApplicationController
 	def get_heading(week_number)
 		heading = get_week_name(week_number) + " Highlights"
 		heading.prepend("Week ") if week_number <= 17
+
+		heading
 	end
 
 	def get_week_name(week_number)
@@ -35,8 +37,6 @@ class HighlightsController < ApplicationController
 		else
 			week_name = week_number.to_s
 		end
-
-		week_name
 	end
 
 	def search
