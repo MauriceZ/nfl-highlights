@@ -26,12 +26,11 @@ end
 desc "Format all the highlights for new conventions"
 task :sanitize_highlights => :environment do
 	num_highlights = Highlight.all.length
-	Highlight.all.each_with_index do |highlight, i|
-		next unless i+1 > 783 
-		puts "ID: #{highlight.id}"
+	Highlight.all.each_with_index do |h, i|
+		puts "ID: #{hid}"
 		puts "#{i+1} of #{num_highlights}"
-		highlight.body_text = Nokogiri::HTML(CGI.unescapeHTML(highlight.body_html)).content
-		highlight.body_html = sanitize(highlight.body_html)
-		highlight.save
+		hbody_text = Nokogiri::HTML(CGI.unescapeHTML(hbody_html)).content
+		hbody_html = sanitize(hbody_html)
+		hsave
 	end
 end

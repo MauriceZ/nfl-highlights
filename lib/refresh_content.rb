@@ -78,6 +78,8 @@ module RefreshContent
 		body_html = Nokogiri::HTML(CGI.unescapeHTML(body))
 
 		body_html.css("a").each do |a|
+			next unless a['data-mp4'].blank?
+			
 			href = a['href']
 
 			if href.include?("imgur") && href.include?(".gif")
