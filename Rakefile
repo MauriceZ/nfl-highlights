@@ -29,8 +29,8 @@ task :sanitize_highlights => :environment do
 	Highlight.all.each_with_index do |highlight, i|
 		puts "ID: #{highlight.id}"
 		puts "#{i+1} of #{num_highlights}"
-		a = highlight
-		a.body = sanitize(a.body)
-		a.save
+		highlight.body_text = Nokogiri::HTML(CGI.unescapeHTML(highlight.body_html)).content
+		highlight.body_html = sanitize(highlight.body_html)
+		highlight.save
 	end
 end
