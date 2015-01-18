@@ -106,6 +106,12 @@ a {
 
 }
 
+.has-sound:after {
+	content: " \f028";
+	font-family: FontAwesome;
+	text-decoration: none !important;
+}
+
 .media {
 	position: fixed;
 	z-index: 9999;

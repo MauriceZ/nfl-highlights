@@ -28,26 +28,12 @@ $(document).on('ready page:load', function() {
     }
 
     function playVideo($a) {
-        // Reset height and width
-        $video.removeAttr('style');
-
-        var url = $a.attr('href');
-
-        if (url.indexOf("imgur") > -1 && url.indexOf(".gif") > -1) {
-            var reg = /(https?:.+imgur.com\/\w+)\.gif/;
-            $('#mp4-source').attr('src', reg.exec(url)[1] + '.mp4')
-            $('#webm-source').attr('src', reg.exec(url)[1] + '.webm')
-        }
-        else {
-           var reg = /https?:.+gfycat.com\/(\w+)/;
-           $('#mp4-source').attr('src', 'http://' + $a.data('mp4size') + '.gfycat.com/' + reg.exec(url)[1] + '.mp4');
-           $('#webm-source').attr('src', 'http://' + $a.data('webmsize') + '.gfycat.com/' + reg.exec(url)[1] + '.webm');
-        }
+        $('#mp4-source').attr('src', $a.data('mp4'));
+        $('#webm-source').attr('src', $a.data('webm'));
 
         $video[0].load();
-
         $video[0].addEventListener("canplaythrough", function(e) {
-            currentUrl = url;
+            currentUrl = $a.attr('href');;
             center($vidContainer);
 
             setTimeout(function() { 
@@ -80,6 +66,8 @@ $(document).on('ready page:load', function() {
     }
 
     function center($elem) {
+        $elem.children().removeAttr('style');
+
         var winWidth = $(window).outerWidth(),
             winHeight = $(window).outerHeight();
 
@@ -116,10 +104,11 @@ $(document).on('ready page:load', function() {
     $('.md a').on('click', function(e){
         e.preventDefault();
         e.stopImmediatePropagation();
+        $a = $(this);
 
-        var url = $(this).attr('href')
+        var url = $a.attr('href')
 
-        if (url.indexOf("gfycat.com") > -1 || (url.indexOf("imgur") > -1 && url.indexOf(".gif") > -1)) { // Is video
+        if ($a.data('mp4')) { // Is video
             displayVideo($(this));
         }
         else if (url.indexOf(".jpg") > -1 || url.indexOf(".png") > -1 || url.indexOf(".jpeg") > -1) { // Is image

@@ -4,41 +4,71 @@ module RefreshContent
 		Highlight.pluck(:body).any? { |body| body.include?(new_body) }
 	end
 
-	def insert_gfy_size(body)
-		new_body = body.dup
-		if body.include?("gfycat.com")
-			body.scan(/a href=\"https?:\/\/(?:www\.)?gfycat\.com\/[a-zA-Z]+/) do |a|
-				gfy_id = a.scan(/gfycat\.com\/([a-zA-Z]+)/)[0][0]
-
-				gfy_response = HTTParty.get("http://gfycat.com/cajax/get/#{gfy_id}")
-
-				next if gfy_response["error"]
-
-				mp4_url = gfy_response["gfyItem"]["mp4Url"]
-				mp4_size = mp4_url.scan(/http:\/\/(\w+)/)[0][0]
-
-				webm_url = gfy_response["gfyItem"]["webmUrl"]
-				webm_size = webm_url.scan(/http:\/\/(\w+)/)[0][0]
-
-				new_a = a.dup
-				new_a.insert(2, "data-mp4size=\"#{mp4_size}\" data-webmsize=\"#{webm_size}\" ")
-
-				new_body.sub!(a, new_a)
-			end
+	def put_gfy_info(a, url)
+		gfy_id = url.scan(/gfycat\.com\/(\w+)/)[0][0]
+		
+		gfy_response = ""
+		10.times do
+			gfy_response = HTTParty.get("http://gfycat.com/cajax/get/#{gfy_id}")
+			break if gfy_response.code == 200
 		end
 
-		new_body
+		if gfy_response['error']
+			return "error"
+		else
+			gfy_response = gfy_response['gfyItem']
+		end
+		
+		a['href'] = "http://gfycat.com/#{gfy_id}"
+		a['data-mp4'] = gfy_response['mp4Url']
+		a['data-webm'] = gfy_response['webmUrl']
 	end
 
-	def clean_gfy_link(body)
-		new_body = body.dup
-		if body.include?("gfycat.com")
-			body.scan(/gfycat\.com\/\w+#\S*\"/) do |link|
-				new_body.gsub!(link, link[/gfycat\.com\/\w+/] + '"') 	 # Strip gfycat params
-			end
+	def gif_to_gfy(a, url)
+		gfy_response = ""
+		10.times do 
+			gfy_response = HTTParty.get("http://upload.gfycat.com/transcode?fetchUrl=#{url}")
+			break if gfy_response.code == 200
 		end
 
-		new_body
+		if gfy_response['error']
+			return "error"
+		end
+
+		a['href'] = "http://gfycat.com/#{gfy_response['gfyName']}"
+		a['data-mp4'] = gfy_response['mp4Url']
+		a['data-webm'] = gfy_response['webmUrl']
+	end
+
+	def get_streamable_vid(url)
+		str_response = ""
+		10.times do
+			str_response = HTTParty.get(url);
+			break if str_response.code == 200
+		end
+
+		if !str_response.blank?
+			return "error"
+		end
+
+		html = Nokogiri::HTML(str_response)
+		html.at_css('source')['src']
+	end
+
+	def get_vine_vid(url)
+		vine_response = ""
+		10.times do
+			vine_response = HTTParty.get(url);
+			break if vine_response.code == 200
+		end
+
+		if !vine_response.blank?
+			return "error"
+		end
+
+		html = Nokogiri::HTML(vine_response)
+		video = html.at_css('video')['src']
+		video.scan(/\S+\.mp4/)[0]
 	end
 
 	def remove_unwanted(body)
@@ -48,33 +78,39 @@ module RefreshContent
 		body
 	end
 
-	def get_gfy_link(gif)
-		response = {}
-
-		30.times do
-			response = HTTParty.get("http://upload.gfycat.com/transcode?fetchUrl=#{gif}")
-			break if response.code == 200
-		end
-
-		if response.code == 200
-			return "http://gfycat.com/#{response['gfyName']}"
-		else
-			return gif
-		end
-	end
-
-	def gifs_to_gfy(body)
-		new_body = body.dup
-
-		body.scan(/(https?:\/\/\S+\.gif)\"/) do |gif|	# Get all .gifs'
-			new_body.sub!(gif[0], get_gfy_link(gif[0]))
-		end
-		
-		new_body
-	end
-
 	def sanitize(body)
-		insert_gfy_size(clean_gfy_link(gifs_to_gfy(body)))
+		body_html = Nokogiri::HTML(CGI.unescapeHTML(body))
+
+		body_html.css("a").each do |a|
+			href = a['href']
+
+			if href.include?("imgur") && href.include?(".gif")
+				a['data-mp4'] = href.scan(/(\S+)\.gif/)[0][0] + ".mp4"
+				a['data-webm'] = href.scan(/(\S+)\.gif/)[0][0] + ".webm"
+			elsif href.include?("gfycat")
+				# a is updated inside method
+				put_gfy_info(a, href)
+			elsif href.include?("streamable")
+				vid_url = get_streamable_vid(href)
+				a['data-mp4'] = vid_url unless vid_url == "error"
+				a['data-webm'] = ""
+				a['class'] = "has-sound";
+			elsif href.include?("vine.co")
+				vid_url = get_vine_vid(href)
+				a['data-mp4'] = vid_url unless vid_url == "error"
+				a['data-webm'] = ""
+				a['class'] = "has-sound";
+			elsif href.include?(".gif")
+				# a is updated inside method
+				gif_to_gfy(a, href)
+			end
+		end
+
+		body_html.to_html
+	end
+
+	def is_highlight?(body)
+		!body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat.com") || body.include?("streamble.com/") || body.include?("vine.co/"))
 	end
 
 	def get_highlights
@@ -94,19 +130,24 @@ module RefreshContent
 			body = comment["data"]["body_html"]
 			replies = comment["data"]["replies"]
 
-			if !body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat.com"))
+			if is_highlight?(body)
+
 				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
+
 			elsif !replies.blank?	# Get replies for requests
+
 				replies["data"]["children"].each do |reply|
 					reply_body = reply["data"]["body_html"]
-					if !reply_body.nil? && (reply_body =~ /http\S+\.gifv?\"/ || reply_body.include?("gfycat.com"))
+
+					if is_highlight?(reply_body)
 						body = remove_unwanted(body)	# Unwanted words only appear when it is a request
 						body += sanitize(reply_body)
 						Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 						break
 					end
 				end
+
 			end
 		end
 	end
@@ -157,7 +198,7 @@ module RefreshContent
 
 			body = comment["data"]["body_html"]
 
-			if !body.nil? && (body =~ /http\S+\.gifv?\"/ || body.include?("gfycat")) && !highlight_saved?(body)
+			if is_highlight?(body) && !highlight_saved?(body)
 				body = sanitize(body)
 				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
 			end
