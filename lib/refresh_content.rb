@@ -47,9 +47,7 @@ module RefreshContent
 			break if str_response.code == 200
 		end
 
-		if !str_response.blank?
-			return "error"
-		end
+		return "error" if !str_response.blank?
 
 		html = Nokogiri::HTML(str_response)
 		html.at_css('source')['src']
@@ -62,9 +60,7 @@ module RefreshContent
 			break if vine_response.code == 200
 		end
 
-		if !vine_response.blank?
-			return "error"
-		end
+		return "error" if !vine_response.blank?
 
 		html = Nokogiri::HTML(vine_response)
 		video = html.at_css('video')['src']
@@ -127,13 +123,14 @@ module RefreshContent
 		response[1]["data"]["children"].each do |comment|
 			break if comment["data"]["created_utc"].to_i == latest
 
-			body = comment["data"]["body_html"]
+			body_html = comment["data"]["body_html"]
+			body_text = Nokogiri::HTML(CGI.unescapeHTML(body_html)).content
 			replies = comment["data"]["replies"]
 
-			if is_highlight?(body)
+			if is_highlight?(body_html)
 
-				body = sanitize(body)
-				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
+				body_html = sanitize(body_html)
+				Highlight.new(:body_html => body_html, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id, :body_text => body_text).save
 
 			elsif !replies.blank?	# Get replies for requests
 
@@ -141,9 +138,10 @@ module RefreshContent
 					reply_body = reply["data"]["body_html"]
 
 					if is_highlight?(reply_body)
-						body = remove_unwanted(body)	# Unwanted words only appear when it is a request
-						body += sanitize(reply_body)
-						Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
+						body_html = remove_unwanted(body_html)	# Unwanted words only appear when it is a request
+						body_html += sanitize(reply_body)
+						body_text = remove_unwanted(body_text)
+						Highlight.new(:body_html => body_html, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id, :body_text => body_text).save
 						break
 					end
 				end
@@ -196,11 +194,12 @@ module RefreshContent
 			next unless comment["data"]["subreddit"] == "nfl"
 			break if comment["data"]["created_utc"].to_i == latest
 
-			body = comment["data"]["body_html"]
+			body_html = comment["data"]["body_html"]
+			body_text = Nokogiri::HTML(CGI.unescapeHTML(body_html)).content
 
-			if is_highlight?(body) && !highlight_saved?(body)
-				body = sanitize(body)
-				Highlight.new(:body => body, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id).save
+			if is_highlight?(body_html) && !highlight_saved?(body_html)
+				body_html = sanitize(body_html)
+				Highlight.new(:body_html => body_html, :posted_on => comment["data"]["created_utc"].to_i, :week_id => week_id, :body_text => body_text).save
 			end
 		end
 	end

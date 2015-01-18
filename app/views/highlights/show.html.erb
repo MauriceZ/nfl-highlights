@@ -4,7 +4,7 @@
 	<h1><%= @heading %></h1>
 	<ul class="highlights">
 		<% @highlights.each do |highlight| %>
-			<%= content_tag(:li, CGI.unescapeHTML(highlight.body).html_safe) %>
+			<%= content_tag(:li, CGI.unescapeHTML(highlight.body_html).html_safe) %>
 		<% end %>
 	</ul>
 </section>
