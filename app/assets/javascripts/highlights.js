@@ -12,13 +12,12 @@ $(document).on('ready page:load', function() {
         currentUrl = "";
 
     function displayVideo($a) {
-        $media.hide();
-        $loading.show();
-
         var url = $a.attr('href');
 
         if (currentUrl != url) {
-            currentUrl = url;
+            $media.hide();
+            $loading.show();
+            currentUrl = "";
             playVideo($a);
         }
         else {
@@ -48,6 +47,7 @@ $(document).on('ready page:load', function() {
         $video[0].load();
 
         $video[0].addEventListener("canplaythrough", function(e) {
+            currentUrl = url;
             center($vidContainer);
 
             setTimeout(function() { 
