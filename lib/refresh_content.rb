@@ -47,7 +47,7 @@ module RefreshContent
 			break if str_response.code == 200
 		end
 
-		return "error" if !str_response.blank?
+		return "error" if str_response.blank?
 
 		html = Nokogiri::HTML(str_response)
 		html.at_css('source')['src']
@@ -60,7 +60,7 @@ module RefreshContent
 			break if vine_response.code == 200
 		end
 
-		return "error" if !vine_response.blank?
+		return "error" if vine_response.blank?
 
 		html = Nokogiri::HTML(vine_response)
 		video = html.at_css('video')['src']
