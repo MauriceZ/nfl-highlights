@@ -101,7 +101,7 @@ $(document).on('ready page:load', function() {
         $video[0].pause();
     });
 
-    $('.md a').on('click', function(e){
+    $('.md a').on('click dblclick', function(e){
         e.preventDefault();
         e.stopImmediatePropagation();
         $a = $(this);
