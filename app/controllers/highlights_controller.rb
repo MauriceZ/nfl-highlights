@@ -35,7 +35,7 @@ class HighlightsController < ApplicationController
 		when 21
 			week_name = "Pro Bowl"
 		when 22
-			week_name = "Superbowl"
+			week_name = "Super Bowl"
 		else
 			week_name = week_number.to_s
 		end
