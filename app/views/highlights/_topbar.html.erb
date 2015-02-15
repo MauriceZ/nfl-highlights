@@ -2,9 +2,9 @@
 	<ul>
 		<% Week.all.each do |week| %>
 			<% if @week && week.week_number == @week.week_number %>
-				<%= content_tag(:li, get_week_name(week.week_number), class: "current-week") %>
+				<%= content_tag(:li, week.week_name, class: "current-week") %>
 			<% else %>
-				<%= content_tag(:li, link_to(get_week_name(week.week_number), "/highlights/#{week.week_number}")) %>
+				<%= content_tag(:li, link_to(week.week_name, "/highlights/#{week.week_number}")) %>
 			<% end %>
 		<% end %>
 	</ul>

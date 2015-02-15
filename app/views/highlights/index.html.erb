@@ -1,7 +1,7 @@
 <ul id="weeks">
 	<% @weeks.reverse.each do |week| %>
 		<li>
-			<%= link_to "Week #{week.week_number.to_s}", "/highlights/#{week.week_number}" %>
+			<%= link_to(week.heading, "/highlights/#{week.week_number}") %>
 		</li>
 	<% end %>
 </ul>
