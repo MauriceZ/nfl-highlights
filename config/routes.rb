@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   get "/highlight/" => "highlights#index"
 
   post "/refresh/highlights" => "refresh#highlights"
-  post "/refresh/threads" => "refresh#threads"
+  post "/refresh/threads" => "refresh#game_threads"
 
   get "/u/:username" => redirect("http://www.reddit.com/u/%{username}")
 

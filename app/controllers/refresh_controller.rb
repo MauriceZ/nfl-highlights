@@ -1,13 +1,9 @@
-require 'refresh_content'
-
 class RefreshController < ApplicationController
-	include RefreshContent
-
 	def highlights
-		get_highlights
+		Highlight.update
 	end
 
-	def threads
-		get_thread
+	def game_threads
+		GameThread.update
 	end
 end
