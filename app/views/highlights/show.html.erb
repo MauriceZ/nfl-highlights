@@ -1,7 +1,15 @@
 <%= render "topbar" %>
 
 <section class="highlights-section">
-	<h1><%= @heading %></h1>
+	<header>
+		<h1><%= @heading %></h1>
+
+		<%= form_tag("/highlights/", :method => "get", :enforce_utf8 => false, :id => "searchform") do %>
+			<%= text_field_tag :search, "", :id => "searchbar", :placeholder => "Search" %>
+			<%= submit_tag "", :name => nil, :id => "search-btn" %>
+		<% end %>
+	</header>
+
 	<ul class="highlights">
 		<% @highlights.each do |highlight| %>
 			<%= content_tag(:li, CGI.unescapeHTML(highlight.body_html).html_safe) %>

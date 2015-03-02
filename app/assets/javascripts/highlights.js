@@ -32,8 +32,8 @@ $(document).on('ready page:load', function() {
         $('#webm-source').attr('src', $a.data('webm'));
 
         $video[0].load();
-        $video[0].addEventListener("canplaythrough", function(e) {
-            currentUrl = $a.attr('href');;
+        $video[0].addEventListener("canplay", function(e) {
+            currentUrl = $a.attr('href');
             center($vidContainer);
 
             setTimeout(function() { 
@@ -41,7 +41,6 @@ $(document).on('ready page:load', function() {
                 $loading.hide();
             }, 200);
 
-            // remove event
             e.target.removeEventListener(e.type, arguments.callee);
         }, false);
     }
