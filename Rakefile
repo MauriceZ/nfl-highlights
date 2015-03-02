@@ -2,35 +2,25 @@
 # for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
 require File.expand_path('../config/application', __FILE__)
-require 'refresh_content'
 
 Rails.application.load_tasks
 
-include RefreshContent
-
-desc "Gets the current week's new highlights"
-task :get_highlights => :environment do
-	get_highlights
+desc "Updates the current week's new highlights"
+task :update_highlights => :environment do
+	Highlight.update
 end
 
-desc "Gets the latest highlight thread"
-task :get_thread => :environment do
-	get_thread
-end
-
-desc "Gets the latest highlights from reddit users that commonly post them"
-task :get_user_highlights => :environment do
-	get_user_highlights
+desc "Updates the latest highlight thread"
+task :update_thread => :environment do
+	GameThread.update
 end
 
 desc "Format all the highlights for new conventions"
-task :sanitize_highlights => :environment do
-	num_highlights = Highlight.all.length
-	Highlight.all.each_with_index do |h, i|
-		puts "ID: #{h.id}"
-		puts "#{i+1} of #{num_highlights}"
-		h.body_text = Nokogiri::HTML(CGI.unescapeHTML(h.body_html)).content
-		h.body_html = sanitize(h.body_html)
-		h.save
+task :create_threads => :environment do
+	Week.all.each do |week|
+		week.urls.each do |url|
+			full_url = "http://www.reddit.com/r/nfl/comments/#{url}/"
+			week.game_threads.create(url: full_url, reddit_id: url).save
+		end
 	end
 end
