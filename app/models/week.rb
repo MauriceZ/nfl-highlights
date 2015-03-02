@@ -1,6 +1,6 @@
 class Week < ActiveRecord::Base
 	has_many :highlights
-	serialize :urls, Array
+	has_many :game_threads
 
 	def week_name
 		case self.week_number
@@ -24,5 +24,13 @@ class Week < ActiveRecord::Base
 		heading.prepend("Week ") if self.week_number <= 17
 
 		heading
+	end
+
+	def has_game_thread?(reddit_id)
+		self.game_threads.each do |thread|
+			return true if thread.reddit_id == reddit_id
+		end
+
+		false
 	end
 end

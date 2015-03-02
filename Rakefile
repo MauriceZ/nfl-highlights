@@ -14,13 +14,3 @@ desc "Updates the latest highlight thread"
 task :update_thread => :environment do
 	GameThread.update
 end
-
-desc "Format all the highlights for new conventions"
-task :create_threads => :environment do
-	Week.all.each do |week|
-		week.urls.each do |url|
-			full_url = "http://www.reddit.com/r/nfl/comments/#{url}/"
-			week.game_threads.create(url: full_url, reddit_id: url).save
-		end
-	end
-end
